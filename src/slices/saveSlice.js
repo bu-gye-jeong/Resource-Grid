@@ -52,25 +52,6 @@ const buyItem = (name, _items, curTime, doBulk = false) => {
 };
 
 /**
- * @param {string} name
- * @param {saveState} save
- * @param {number} curTime
- * @returns
- */
-const buyItemAuto = (name, _items, curTime) => {
-  const items = mergeObject(_items, {});
-  if (items[name].startTime !== 0) return _items;
-  const Resource = Resources[name];
-
-  const req = AutoConnected[name];
-  if (items[req].have <= 0) return _items;
-
-  items[Resource.name].startTime = curTime;
-
-  return items;
-};
-
-/**
  * @typedef {Object} saveState
  *
  * @property {Object.<string, { have: number, startTime: number, unlocked: boolean }>} items
@@ -153,7 +134,7 @@ const saveSlice = createSlice({
           if (Resource.automates) {
             for (let j = 0; j < Resource.automates.length; j++) {
               const IngName = Resource.automates[j];
-              state.items = buyItemAuto(IngName, state.items, Time);
+              state.items = buyItem(IngName, state.items, Time);
             }
           }
         }

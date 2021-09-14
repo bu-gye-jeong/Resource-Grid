@@ -9,6 +9,9 @@ export const Resources = {
   }),
   Tree: new Resource({
     name: "Tree",
+    cost: {
+      TreeSeed: 0,
+    },
     craftTime: 20,
     position: [0, 1],
   }),

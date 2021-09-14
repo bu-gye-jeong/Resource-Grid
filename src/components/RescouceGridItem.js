@@ -131,11 +131,9 @@ function RescouceGridItem({ data }) {
   const startTime = items[data.name].startTime;
 
   useEffect(() => {
-    console.log(startTime);
-    if (startTime === 0) {
-      clearInterval(intervalId.current);
-      setProgress(0);
-    } else {
+    clearInterval(intervalId.current);
+    setProgress(0);
+    if (startTime !== 0) {
       intervalId.current = setInterval(() => {
         setProgress(
           Math.floor(
