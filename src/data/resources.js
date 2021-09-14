@@ -1,10 +1,8 @@
-// eslint-disable-next-line
-import { DefaultSave } from "../saveload";
 import Resource from "../class/Resource.js";
 
 export const Resources = {
   TreeSeed: new Resource({
-    name: "Tree Seed",
+    name: "TreeSeed",
     description: "Generate tree",
     automates: ["Tree"],
     position: [0, 0],
@@ -212,7 +210,7 @@ export const ResourceArr = new Array(81).fill(null);
 for (const id in Resources) {
   /** @type {Resource} */
   const Resource = Resources[id];
-  const position = Resource.position.y + 9 * Resource.position.x;
+  const position = Resource.position.x + 9 * Resource.position.y;
   ResourceArr[position] = Resource;
 }
 

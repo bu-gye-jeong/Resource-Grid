@@ -117,7 +117,7 @@ function RescouceGridItem({ data }) {
         <span>
           <ResourceImage
             style={{
-              backgroundPosition: `calc(var(--resourceGap) * -${data.position.y}) calc(var(--resourceGap) * -${data.position.x})`,
+              backgroundPosition: `calc(var(--resourceGap) * -${data.position.x}) calc(var(--resourceGap) * -${data.position.y})`,
             }}></ResourceImage>
           <ResourceQuantity>{items[data.name].have}</ResourceQuantity>
         </span>
