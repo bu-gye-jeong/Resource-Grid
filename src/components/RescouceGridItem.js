@@ -6,6 +6,7 @@ import resourceImage from "../resources/Resources.png";
 import Resource from "../class/Resource";
 import { buy } from "../slices/saveSlice";
 import { useEffect, useRef, useState } from "react";
+import { RecipeDisplayerContainer } from "./RecipeDisplayer";
 
 const namespaceAppear = keyframes`
   from {
@@ -53,10 +54,10 @@ const ResourceGridItem = styled.div`
     padding: 1% 5%;
 
     min-width: 60%;
-    height: 15%;
+    height: 1.3em;
 
     position: absolute;
-    top: -15%;
+    top: -1.3em;
     left: 5%;
 
     color: var(--colMainReverse);
@@ -133,7 +134,7 @@ const ShadowBlocker = styled.div`
  * @param {Object} obj
  * @param {Resource} obj.data
  */
-function RescouceGridItem({ data }) {
+function ResourceGridItemContainer({ data }) {
   const dispatch = useDispatch();
   const handleClick = () => {
     dispatch(buy(data.name));
@@ -180,6 +181,7 @@ function RescouceGridItem({ data }) {
           <ResourceQuantity>{items[data.name].have}</ResourceQuantity>
         </span>
       </ResourceInfo>
+      {isHover && <RecipeDisplayerContainer data={data} />}
     </ResourceGridItem>
   );
 }
@@ -188,4 +190,4 @@ export function EmptyGridItem() {
   return <ResourceGridItem style={{ opacity: 0, pointerEvents: "none" }} />;
 }
 
-export default RescouceGridItem;
+export default ResourceGridItemContainer;

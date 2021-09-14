@@ -1,5 +1,7 @@
 import styled from "styled-components";
-import RescouceGridItem, { EmptyGridItem } from "./RescouceGridItem.js";
+import ResourceGridItemContainer, {
+  EmptyGridItem,
+} from "./RescouceGridItem.js";
 import { ResourceArr } from "../data/resources.js";
 
 const RescouceGrid = styled.div`
@@ -33,7 +35,7 @@ function ResourceGrid() {
       <RescouceGrid>
         {ResourceArr.map((resource, index) =>
           resource ? (
-            <RescouceGridItem data={resource} key={index} />
+            <ResourceGridItemContainer data={resource} key={index} />
           ) : (
             <EmptyGridItem key={index} />
           )
