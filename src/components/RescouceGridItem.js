@@ -5,11 +5,14 @@ import resourceImage from "../resources/Resources.png";
 // eslint-disable-next-line
 import Resource from "../class/Resource";
 import { buy } from "../slices/saveSlice";
+import { useEffect, useRef, useState } from "react";
 
 const ResourceGridItem = styled.div`
   --margin: calc(var(--cellSize) / 10);
   --boxRatio: 1.3;
   --boxSize: calc(var(--cellSize) - var(--margin));
+
+  display: inline;
 
   margin: calc(var(--margin) / 2);
 
@@ -98,6 +101,18 @@ const ResourceName = styled.div`
     animation: ${textGoLeft} 3s linear infinite;
   }
 `;
+const ResourceProgress = styled.div`
+  border-radius: calc(var(--boxSize) / 15);
+
+  left: 0;
+  bottom: 0;
+
+  position: absolute;
+
+  width: 100%;
+
+  background-color: var(--colOverlay);
+`;
 
 /**
  * @param {Object} obj
@@ -110,9 +125,33 @@ function RescouceGridItem({ data }) {
   };
 
   const items = useSelector((state) => state.save.items);
+  const [progress, setProgress] = useState(0);
+  let intervalId = useRef(0);
 
-  return data ? (
+  const startTime = items[data.name].startTime;
+
+  useEffect(() => {
+    console.log(startTime);
+    if (startTime === 0) {
+      clearInterval(intervalId.current);
+      setProgress(0);
+    } else {
+      intervalId.current = setInterval(() => {
+        setProgress(
+          Math.floor(
+            Math.min(
+              (new Date().getTime() - startTime) / 10 / data.craftTime,
+              100
+            )
+          )
+        );
+      }, 100);
+    }
+  }, [startTime, data.craftTime]);
+
+  return (
     <ResourceGridItem onClick={handleClick}>
+      <ResourceProgress style={{ height: progress + "%" }} />
       <ResourceInfo>
         <span>
           <ResourceImage
@@ -130,9 +169,11 @@ function RescouceGridItem({ data }) {
         </span>
       </ResourceInfo>
     </ResourceGridItem>
-  ) : (
-    <ResourceGridItem style={{ opacity: 0, pointerEvents: "none" }} />
   );
+}
+
+export function EmptyGridItem() {
+  return <ResourceGridItem style={{ opacity: 0, pointerEvents: "none" }} />;
 }
 
 export default RescouceGridItem;

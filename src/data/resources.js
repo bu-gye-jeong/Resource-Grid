@@ -9,7 +9,7 @@ export const Resources = {
   }),
   Tree: new Resource({
     name: "Tree",
-    craftTime: 1,
+    craftTime: 20,
     position: [0, 1],
   }),
   Log: new Resource({

@@ -92,7 +92,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setInterval(() => dispatch(tick()), 1000);
+    setInterval(() => dispatch(tick()), 50);
   }, [dispatch]);
 
   return (
