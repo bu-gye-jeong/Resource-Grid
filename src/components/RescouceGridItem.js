@@ -1,7 +1,10 @@
 // import { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-import Resource from '../class/Resource';
+import { useDispatch, useSelector } from "react-redux";
+import styled, { keyframes } from "styled-components";
 import resourceImage from "../resources/Resources.png";
+// eslint-disable-next-line
+import Resource from "../class/Resource";
+import { buy } from "../slices/saveSlice";
 
 const ResourceGridItem = styled.div`
   --margin: calc(var(--cellSize) / 10);
@@ -12,7 +15,7 @@ const ResourceGridItem = styled.div`
 
   width: calc(var(--boxSize) / var(--boxRatio));
   height: calc(var(--boxSize));
-  
+
   background-color: var(--colMain3);
   border-radius: calc(var(--boxSize) / 15);
   box-shadow: var(--baseShadow);
@@ -20,7 +23,7 @@ const ResourceGridItem = styled.div`
   transform: scale(1);
   cursor: pointer;
 
-  transition: all 0.3s cubic-bezier(0,.79,.32,1);
+  transition: all 0.3s cubic-bezier(0, 0.79, 0.32, 1);
 
   &:hover {
     width: calc(var(--boxSize) / var(--boxRatio) * 2);
@@ -32,7 +35,7 @@ const ResourceGridItem = styled.div`
 const ResourceInfo = styled.div`
   display: flex;
   overflow: hidden;
-  
+
   & > span {
     display: inline-block;
 
@@ -97,25 +100,39 @@ const ResourceName = styled.div`
 `;
 
 /**
- * @param {object} obj
- * @param {Resource} obj.data 
+ * @param {Object} obj
+ * @param {Resource} obj.data
  */
 function RescouceGridItem({ data }) {
+  const dispatch = useDispatch();
+  const handleClick = () => {
+    dispatch(buy(data.name));
+  };
+
+  const items = useSelector((state) => state.save.items);
+
   return data ? (
-    <ResourceGridItem>
+    <ResourceGridItem onClick={handleClick}>
       <ResourceInfo>
         <span>
-          <ResourceImage style={{backgroundPosition: `calc(var(--resourceGap) * -${data.position.y}) calc(var(--resourceGap) * -${data.position.x})` }}></ResourceImage>
-          <ResourceQuantity>
-            1004
-          </ResourceQuantity>
+          <ResourceImage
+            style={{
+              backgroundPosition: `calc(var(--resourceGap) * -${data.position.y}) calc(var(--resourceGap) * -${data.position.x})`,
+            }}></ResourceImage>
+          <ResourceQuantity>{items[data.name].have}</ResourceQuantity>
         </span>
         <span>
-          <ResourceName name={data.name}></ResourceName>
+          <ResourceName
+            name={data.name.replace(
+              /(.)([A-Z])/g,
+              (_, g1, g2) => `${g1} ${g2}`
+            )}></ResourceName>
         </span>
       </ResourceInfo>
     </ResourceGridItem>
-  ) : <ResourceGridItem style={{ opacity: 0, pointerEvents: 'none' }}/>;
+  ) : (
+    <ResourceGridItem style={{ opacity: 0, pointerEvents: "none" }} />
+  );
 }
 
 export default RescouceGridItem;

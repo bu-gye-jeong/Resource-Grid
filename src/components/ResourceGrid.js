@@ -32,13 +32,11 @@ function ResourceGrid() {
   return (
     <>
       <RescouceGrid>
-          {ResourceArr.map(resource => (
-            <RescouceGridItem data={resource} />
-          ))}
+        {ResourceArr.map((resource, index) => (
+          <RescouceGridItem data={resource} key={index} />
+        ))}
       </RescouceGrid>
-      <OtherContents>
-        - Nothing -
-      </OtherContents>
+      <OtherContents>- Nothing -</OtherContents>
     </>
   );
 }
