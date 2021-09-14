@@ -12,6 +12,7 @@ export const Resources = {
     cost: {
       TreeSeed: 0,
     },
+    cantCraftManually: true,
     craftTime: 20,
     position: [0, 1],
   }),

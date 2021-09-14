@@ -9,8 +9,9 @@ export default class Resource {
    * @property {[number, number]} position - Position on Rescource Grid
    * @property {[number, string, number][]} [randomGrantOnCraft] - [chance, id, greatThan&sub] | Randomely grants resource on craft
    * @property {[number, string, number][]} [randomGrantPerSecond] - [chance, id, greatThan&sub] | Randomely grants resource every second
-   * @property {function(number): number} [effectMultiply] - Multiply random chance and 
+   * @property {function(number): number} [effectMultiply] - Multiply random chance and
    * @property {string[]} [automates] - Automatically craft/generate resource
+   * @property {boolean} [cantCraftManually] - Cannot craft manually
    */
   /** @param {ResourceConstructor} data */
   constructor(data) {
@@ -20,22 +21,23 @@ export default class Resource {
     this.craftTime = data.craftTime;
     this.craftMultiply = data.craftMultiply || 1;
     this._position = data.position;
-    this.order = 9*this._position[0] + this._position[1];
+    this.order = 9 * this._position[0] + this._position[1];
     this.randomGrantOnCraft = data.randomGrantOnCraft;
     this.randomGrantPerSecond = data.randomGrantPerSecond;
     this._effectMultiply = data.effectMultiply;
     this.automates = data.automates;
+    this.cantCraftManually = data.cantCraftManually || false;
   }
 
   get position() {
     return {
       x: this._position[1],
-      y: this._position[0]
-    }
+      y: this._position[0],
+    };
   }
 
   effectMultiply(have) {
-    if (typeof this._effectMultiply === 'function') {
+    if (typeof this._effectMultiply === "function") {
       return this._effectMultiply(have);
     } else {
       return 1;
@@ -44,9 +46,9 @@ export default class Resource {
 
   cost(have) {
     let cost;
-    if (typeof this._cost === 'undefined') {
+    if (typeof this._cost === "undefined") {
       return null;
-    } else if (typeof this._cost === 'function') {
+    } else if (typeof this._cost === "function") {
       cost = this._cost(have);
     } else {
       cost = this._cost;
@@ -59,4 +61,3 @@ export default class Resource {
     return cost;
   }
 }
-

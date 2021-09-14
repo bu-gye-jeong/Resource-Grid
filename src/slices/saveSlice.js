@@ -13,16 +13,13 @@ function canBuy(name, items) {
 
   const cost = Resource.cost(items[name].have);
 
-  let bulk = Infinity;
   if (cost === null) return false;
 
   for (const resourceName in cost) {
     const _cost = cost[resourceName];
     const _have = items[resourceName].have;
     if (_cost > _have) return false;
-    bulk = Math.min(bulk, _have / _cost);
   }
-  return Math.floor(bulk);
 }
 
 /**
@@ -32,17 +29,19 @@ function canBuy(name, items) {
  * @param {boolean} doBulk
  * @returns
  */
-const buyItem = (name, _items, curTime, doBulk = false) => {
+const buyItem = (name, _items, curTime, isAuto = false) => {
   const items = mergeObject(_items, {});
-  const Resource = Resources[name];
-
-  const cost = Resource.cost(items[name].have);
   const buyable = canBuy(name, items);
   if (buyable === false) return _items;
-  const bulk = doBulk ? buyable : 1;
+
+  const Resource = Resources[name];
+
+  if (!isAuto && Resource.cantCraftManually) return _items;
+
+  const cost = Resource.cost(items[name].have);
 
   for (const resourceName in cost) {
-    const _cost = bulk * cost[resourceName];
+    const _cost = cost[resourceName];
     items[resourceName].have -= _cost;
   }
 
@@ -134,7 +133,8 @@ const saveSlice = createSlice({
           if (Resource.automates) {
             for (let j = 0; j < Resource.automates.length; j++) {
               const IngName = Resource.automates[j];
-              state.items = buyItem(IngName, state.items, Time);
+              if (state.items[IngName].startTime === 0)
+                state.items = buyItem(IngName, state.items, Time, true);
             }
           }
         }
