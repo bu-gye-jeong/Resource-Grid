@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { AutoConnected, Resources } from "../data/resources";
-import produce from "immer";
+import { mergeObject } from "../utils/merge";
 
 /**
  * @param {string} name
@@ -9,13 +9,12 @@ import produce from "immer";
  */
 function canBuy(name, items) {
   const Resource = Resources[name];
-  // if (items[name].startTime !== null) return;
+  if (items[name].startTime !== 0) return false;
 
   const cost = Resource.cost(items[name].have);
-  console.log(JSON.stringify(cost));
 
   let bulk = Infinity;
-  if (cost === null) return bulk;
+  if (cost === null) return false;
 
   for (const resourceName in cost) {
     const _cost = cost[resourceName];
@@ -33,25 +32,43 @@ function canBuy(name, items) {
  * @param {boolean} doBulk
  * @returns
  */
-const buyItem = (name, save, curTime, doBulk = false) =>
-  produce(save, (draft) => {
-    const items = draft.items;
-    const Resource = Resources[name];
+const buyItem = (name, _items, curTime, doBulk = false) => {
+  const items = mergeObject(_items, {});
+  const Resource = Resources[name];
 
-    const cost = Resource.cost(items[name].have);
-    const bulk = doBulk ? canBuy(name, items) : 1;
+  const cost = Resource.cost(items[name].have);
+  const buyable = canBuy(name, items);
+  if (buyable === false) return _items;
+  const bulk = doBulk ? buyable : 1;
 
-    if (!bulk) return false;
+  for (const resourceName in cost) {
+    const _cost = bulk * cost[resourceName];
+    items[resourceName].have -= _cost;
+  }
 
-    for (const resourceName in cost) {
-      const _cost = bulk * cost[resourceName];
-      items[resourceName].have -= _cost;
-    }
+  items[Resource.name].startTime = curTime;
 
-    items[Resource.name].startTime = curTime;
+  return items;
+};
 
-    return draft;
-  });
+/**
+ * @param {string} name
+ * @param {saveState} save
+ * @param {number} curTime
+ * @returns
+ */
+const buyItemAuto = (name, _items, curTime) => {
+  const items = mergeObject(_items, {});
+  if (items[name].startTime !== 0) return _items;
+  const Resource = Resources[name];
+
+  const req = AutoConnected[name];
+  if (items[req].have <= 0) return _items;
+
+  items[Resource.name].startTime = curTime;
+
+  return items;
+};
 
 /**
  * @typedef {Object} saveState
@@ -64,7 +81,7 @@ export const initialState = {
   items: Object.fromEntries(
     Object.entries(Resources).map((e) => [
       e[0],
-      { have: e[0] === "TreeSeed" ? 1 : 0, startTime: null, unlocked: false },
+      { have: e[0] === "TreeSeed" ? 1 : 0, startTime: 0, unlocked: false },
     ])
   ),
   automations: [],
@@ -93,7 +110,11 @@ const saveSlice = createSlice({
         };
       },
       reducer(state, action) {
-        state = buyItem(action.payload.name, state, action.payload.Time, true);
+        state.items = buyItem(
+          action.payload.name,
+          state.items,
+          action.payload.Time
+        );
       },
     },
     tick: {
@@ -105,30 +126,34 @@ const saveSlice = createSlice({
       reducer(state, action) {
         const Time = action.payload.Time;
 
-        for (const Resource of Resources) {
-          const ResName = Resource.name;
+        for (const ResName in Resources) {
+          const Resource = Resources[ResName];
 
           // Check Unlocked
+
+          // Check craft end
+          if (state.items[ResName].startTime !== 0) {
+            let craftTime = Resource.craftTime * 1000;
+            if (
+              AutoConnected[ResName] &&
+              state.items[AutoConnected[ResName]] >= 1
+            ) {
+              craftTime /= state.items[AutoConnected[ResName]].have;
+            }
+
+            if (Time >= state.items[ResName].startTime + craftTime) {
+              state.items[ResName].have += Math.floor(
+                (Time - state.items[ResName].startTime) / craftTime
+              );
+              state.items[ResName].startTime = 0;
+            }
+          }
 
           // Start Automate
           if (Resource.automates) {
             for (let j = 0; j < Resource.automates.length; j++) {
               const IngName = Resource.automates[j];
-              state = buyItem(IngName, state, Time);
-            }
-          }
-
-          // Check craft end
-          if (state.items[ResName].startTime !== null) {
-            let craftTime = Resource.craftTime * 1000;
-            if (AutoConnected[ResName]) {
-              craftTime /= state[AutoConnected[ResName]].have;
-            }
-            if (Time >= state[ResName].startTime + craftTime) {
-              state[ResName].startTime = null;
-              state[ResName].have += Math.floor(
-                (Time - state[ResName].startTime) / craftTime
-              );
+              state.items = buyItemAuto(IngName, state.items, Time);
             }
           }
         }

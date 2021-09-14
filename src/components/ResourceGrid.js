@@ -1,4 +1,3 @@
-// import { useState } from 'react';
 import styled from "styled-components";
 import RescouceGridItem from "./RescouceGridItem.js";
 import { ResourceArr } from "../data/resources.js";

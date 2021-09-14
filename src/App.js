@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import styled, { createGlobalStyle } from "styled-components";
 import ResourceGrid from "./components/ResourceGrid.js";
+import { tick } from "./slices/saveSlice.js";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -86,6 +89,12 @@ const MainContainer = styled.div`
 `;
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setInterval(() => dispatch(tick()), 1000);
+  }, [dispatch]);
+
   return (
     <div className="App">
       <GlobalStyle />
