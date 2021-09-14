@@ -7,12 +7,22 @@ import Resource from "../class/Resource";
 import { buy } from "../slices/saveSlice";
 import { useEffect, useRef, useState } from "react";
 
+const namespaceAppear = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(100%) scale(0.2, 1);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1, 1);
+  }
+`;
 const ResourceGridItem = styled.div`
   --margin: calc(var(--cellSize) / 10);
   --boxRatio: 1.3;
   --boxSize: calc(var(--cellSize) - var(--margin));
 
-  display: inline;
+  display: inline-block;
 
   margin: calc(var(--margin) / 2);
 
@@ -20,6 +30,7 @@ const ResourceGridItem = styled.div`
   height: calc(var(--boxSize));
 
   background-color: var(--colMain3);
+  --bgCol: var(--colMain3);
   border-radius: calc(var(--boxSize) / 15);
   box-shadow: var(--baseShadow);
 
@@ -31,8 +42,33 @@ const ResourceGridItem = styled.div`
   &:hover {
     width: calc(var(--boxSize) / var(--boxRatio) * 2);
     background-color: var(--colMain4);
+    --bgCol: var(--colMain4);
     transform: scale(1.4);
     z-index: 1;
+  }
+
+  &:hover::before {
+    content: attr(name);
+
+    padding: 1% 5%;
+
+    min-width: 60%;
+    height: 15%;
+
+    position: absolute;
+    top: -15%;
+    left: 5%;
+
+    color: var(--colMainReverse);
+    word-spacing: -0.3em;
+    font-size: 0.9em;
+    text-align: center;
+
+    background-color: var(--colMain4);
+    border-radius: calc(var(--cellSize) / 30);
+    box-shadow: var(--baseShadow);
+
+    animation: ${namespaceAppear} 0.4s cubic-bezier(0.12, 0.81, 0.31, 0.95);
   }
 `;
 const ResourceInfo = styled.div`
@@ -70,37 +106,6 @@ const ResourceQuantity = styled.div`
   font-weight: bolder;
   color: var(--colReverse);
 `;
-const textGoLeft = keyframes`
-  from {
-    transform: translateX(0%);
-    opacity: 1;
-  }
-  50% {
-    transform: translateX(-100%);
-  }
-  50.0001% {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0%);
-  }
-`;
-const ResourceName = styled.div`
-  overflow: hidden;
-
-  &::after {
-    --shadowSize: calc(var(--boxSize) / 10);
-
-    min-width: 100%;
-
-    display: inline-block;
-
-    content: attr(name);
-
-    color: var(--colReverse);
-    animation: ${textGoLeft} 3s linear infinite;
-  }
-`;
 const ResourceProgress = styled.div`
   border-radius: calc(var(--boxSize) / 15);
 
@@ -112,6 +117,16 @@ const ResourceProgress = styled.div`
   width: 100%;
 
   background-color: var(--colOverlay);
+`;
+const ShadowBlocker = styled.div`
+  position: absolute;
+  background-color: var(--bgCol);
+  animation: ${namespaceAppear} 0.4s cubic-bezier(0.12, 0.81, 0.31, 0.95);
+
+  height: calc(var(--min) / 25);
+  width: 99%;
+
+  border-radius: calc(var(--boxSize) / 15);
 `;
 
 /**
@@ -126,6 +141,7 @@ function RescouceGridItem({ data }) {
 
   const items = useSelector((state) => state.save.items);
   const [progress, setProgress] = useState(0);
+  const [isHover, setHover] = useState(false);
   let intervalId = useRef(0);
 
   const startTime = items[data.name].startTime;
@@ -148,7 +164,12 @@ function RescouceGridItem({ data }) {
   }, [startTime, data.craftTime]);
 
   return (
-    <ResourceGridItem onClick={handleClick}>
+    <ResourceGridItem
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onClick={handleClick}
+      name={data.name.replace(/(.)([A-Z])/g, (_, g1, g2) => `${g1} ${g2}`)}>
+      <ShadowBlocker />
       <ResourceProgress style={{ height: progress + "%" }} />
       <ResourceInfo>
         <span>
@@ -157,13 +178,6 @@ function RescouceGridItem({ data }) {
               backgroundPosition: `calc(var(--resourceGap) * -${data.position.x}) calc(var(--resourceGap) * -${data.position.y})`,
             }}></ResourceImage>
           <ResourceQuantity>{items[data.name].have}</ResourceQuantity>
-        </span>
-        <span>
-          <ResourceName
-            name={data.name.replace(
-              /(.)([A-Z])/g,
-              (_, g1, g2) => `${g1} ${g2}`
-            )}></ResourceName>
         </span>
       </ResourceInfo>
     </ResourceGridItem>
