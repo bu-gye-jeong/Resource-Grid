@@ -37,6 +37,7 @@ const buyItem = (name, _items, curTime, isAuto = false) => {
   const Resource = Resources[name];
 
   if (!isAuto && Resource.cantCraftManually) return _items;
+  if (isAuto && items[AutoConnected[name]].have === 0) return _items;
 
   const cost = Resource.cost(items[name].have);
 
