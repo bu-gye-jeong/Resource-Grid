@@ -7,7 +7,10 @@ import Resource from "../class/Resource";
 import { Resources } from "../data/resources";
 
 const RecipeDisplayer = styled.div`
-  display: inline-block;
+  position: absolute;
+  width: 50%;
+  right: -5%;
+  top: 0;
 `;
 const ResourceImage = styled.div`
   --imageSize: calc((var(--boxSize) / var(--boxRatio) - var(--margin)) / 5);

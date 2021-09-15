@@ -7,6 +7,7 @@ import Resource from "../class/Resource";
 import { buy } from "../slices/saveSlice";
 import { useEffect, useRef, useState } from "react";
 import { RecipeDisplayerContainer } from "./RecipeDisplayer";
+import { AutoConnected } from "../data/resources";
 
 const namespaceAppear = keyframes`
   from {
@@ -41,7 +42,9 @@ const ResourceGridItem = styled.div`
   transition: all 0.3s cubic-bezier(0, 0.79, 0.32, 1);
 
   &:hover {
-    width: calc(var(--boxSize) / var(--boxRatio) * 2);
+    margin-top: calc(var(--boxSize) * 1);
+    width: calc(var(--boxSize) / var(--boxRatio) * 2.2);
+    height: calc(var(--boxSize) * 1.5);
     background-color: var(--colMain4);
     --bgCol: var(--colMain4);
     transform: scale(1.4);
@@ -146,6 +149,7 @@ function ResourceGridItemContainer({ data }) {
   let intervalId = useRef(0);
 
   const startTime = items[data.name].startTime;
+  const craftSpeed = items[AutoConnected[data.name]]?.have;
 
   useEffect(() => {
     clearInterval(intervalId.current);
@@ -155,14 +159,15 @@ function ResourceGridItemContainer({ data }) {
         setProgress(
           Math.floor(
             Math.min(
-              (new Date().getTime() - startTime) / 10 / data.craftTime,
+              ((new Date().getTime() - startTime) / 10 / data.craftTime) *
+                (AutoConnected[data.name] ? craftSpeed : 1),
               100
             )
           )
         );
       }, 100);
     }
-  }, [startTime, data.craftTime]);
+  }, [startTime, data.craftTime, data.name, craftSpeed]);
 
   return (
     <ResourceGridItem
@@ -180,8 +185,8 @@ function ResourceGridItemContainer({ data }) {
             }}></ResourceImage>
           <ResourceQuantity>{items[data.name].have}</ResourceQuantity>
         </span>
+        <span>{isHover && <RecipeDisplayerContainer data={data} />}</span>
       </ResourceInfo>
-      {isHover && <RecipeDisplayerContainer data={data} />}
     </ResourceGridItem>
   );
 }

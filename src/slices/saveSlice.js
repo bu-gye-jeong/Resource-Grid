@@ -117,7 +117,7 @@ const saveSlice = createSlice({
             let craftTime = Resource.craftTime * 1000;
             if (
               AutoConnected[ResName] &&
-              state.items[AutoConnected[ResName]] >= 1
+              state.items[AutoConnected[ResName]].have >= 1
             ) {
               craftTime /= state.items[AutoConnected[ResName]].have;
             }
