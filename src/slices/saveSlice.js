@@ -122,9 +122,7 @@ const saveSlice = createSlice({
             }
 
             if (Time >= state.items[ResName].startTime + craftTime) {
-              state.items[ResName].have += Math.floor(
-                (Time - state.items[ResName].startTime) / craftTime
-              );
+              state.items[ResName].have += 1;
               state.items[ResName].startTime = 0;
             }
           }
